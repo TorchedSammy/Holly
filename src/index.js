@@ -24,16 +24,22 @@ const options = {
 const res = fetch('https://ordr-api.issou.best/renders', { ...options })
 
 .then(async res => {
-	if (res.status !== 201) {
+	if(res.status !== 201) {
 		console.log(`Error: ${res.status}`);
 		process.exit(1);
 	}
 	const resp = await res.json();
+	console.log('Replay uploaded! Render will start in a few seconds.')
 
 	const socket = io('https://ordr-ws.issou.best');
-	socket.on('render_progress_json', renderinfo => {
-		if(renderinfo.renderID === resp.renderID) {
-			console.log(renderinfo.progress)
+	socket.on('render_progress_json', renderInfo => {
+		if(renderInfo.renderID === resp.renderID) {
+			if(renderInfo.progress.includes('Rendering')) {
+				process.stdout.write('\r' + renderInfo.progress)
+			}
+			if(renderInfo.progress.includes('Finalizing')) {
+				process.stdout.write('\rVideo is being uploaded...\r')
+			}
 		}
 	});
 
