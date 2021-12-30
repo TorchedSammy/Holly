@@ -1,0 +1,25 @@
+{
+  "name": "holly",
+  "description": "> 🪴 o!rdr command line tool to upload replays to it from the terminal",
+  "version": "0.1.0",
+  "main": "src/index.js",
+  "dependencies": {
+    "form-data": "^4.0.0",
+    "node-fetch-commonjs": "^3.1.1",
+    "socket.io-client": "^4.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TorchedSammy/Holly.git"
+  },
+  "author": "TorchedSammy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TorchedSammy/Holly/issues"
+  },
+  "homepage": "https://github.com/TorchedSammy/Holly#readme"
+}
