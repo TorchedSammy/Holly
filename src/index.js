@@ -72,4 +72,11 @@ const res = fetch('https://ordr-api.issou.best/renders', options)
 			spinner.success(renderInfo.videoUrl)
 		}
 	});
+
+	socket.on('render_failed_json', renderInfo => {
+		if(renderInfo.renderID === resp.renderID) {
+			socket.disconnect();
+			spinner.fail(`Error: ${renderInfo.errorMessage} (${renderInfo.errorCode})`);
+		}
+	});
 });
