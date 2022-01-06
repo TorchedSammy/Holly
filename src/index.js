@@ -24,11 +24,26 @@ const options = {
 }
 
 spinner.start('Uploading replay...');
-const res = fetch('https://ordr-api.issou.best/renders', { ...options })
 
+function timeRelative(time) {
+	const now = Date.now();
+	const diff = time - now;
+	const seconds = Math.floor(diff / 1000);
+	const minutes = Math.floor(seconds / 60);
+	
+	if (minutes > 0) {
+		return `in ${minutes} minutes, ${seconds % 60} seconds`;
+	} else if (seconds > 0) {
+		return `in ${seconds} seconds`;
+	} else {
+		return 'in less than a second';
+	}
+}
+
+const res = fetch('https://ordr-api.issou.best/renders', options)
 .then(async res => {
 	if(res.status === 429) {
-		spinner.fail('Replay has been uploaded recently. Please try again later.');
+		spinner.fail(`Replay has been uploaded recently. Please wait ${timeRelative(Number(res.headers.get("X-RateLimit-Reset")) * 1000)} before trying again.`);
 		process.exit(1);
 	}
 
