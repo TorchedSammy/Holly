@@ -55,21 +55,21 @@ const res = fetch('https://ordr-api.issou.best/renders', options)
 	spinner.success('Replay uploaded! Render will start in a few seconds.')
 
 	const socket = io('https://ordr-ws.issou.best');
+	spinner.start('Waiting for ordr...');
 	socket.on('render_progress_json', renderInfo => {
 		if(renderInfo.renderID === resp.renderID) {
-			if(renderInfo.progress.includes('Rendering')) {
-				process.stdout.write('\r' + renderInfo.progress)
-			}
 			if(renderInfo.progress.includes('Finalizing')) {
-				process.stdout.write('\rVideo is being uploaded...\r')
+				spinner.text = 'Video is being uploaded...';
+				return
 			}
+			spinner.text = `${renderInfo.progress}`;
 		}
 	});
 
 	socket.on('render_done_json', renderInfo => {
 		if(renderInfo.renderID === resp.renderID) {
 			socket.disconnect();
-			console.log(renderInfo.videoUrl)
+			spinner.success(renderInfo.videoUrl)
 		}
 	});
 });
