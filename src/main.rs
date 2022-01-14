@@ -1,6 +1,6 @@
 mod holly;
 
-use std::{env, time, thread::sleep};
+use std::{env, time::{Duration, Instant}, thread::sleep};
 use reqwest::blocking::multipart;
 use rust_socketio::{ClientBuilder, Payload, Client};
 use std::io::Read;
@@ -31,9 +31,9 @@ fn main() {
 	// check if status code is 429
 	if res.status() == reqwest::StatusCode::TOO_MANY_REQUESTS {
 		// get X-RateLimit-Reset header
-		let now = time::Instant::now();
+		let now = Instant::now();
 		let stamp = res.headers().get("X-RateLimit-Reset").unwrap().to_str().unwrap().parse::<u64>().unwrap();
-		let duration = time::Duration::from_secs(stamp) - now.elapsed();
+		let duration = Duration::from_secs(stamp) - now.elapsed();
 
 		println!("{}", duration.as_secs());
 		println!("Ratelimited, try again later...");
