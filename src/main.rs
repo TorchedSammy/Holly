@@ -4,9 +4,16 @@ use std::{env, time, thread::sleep};
 use reqwest::blocking::multipart;
 use rust_socketio::{ClientBuilder, Payload, Client};
 use std::io::Read;
+use indicatif::ProgressBar;
 
 fn main() {
 	let args: Vec<String> = env::args().collect();
+	let spinner = ProgressBar::new_spinner(); // thanks indicatif this makes sense
+	spinner.enable_steady_tick(80);
+	// tfw you rust
+	let spinner1 = spinner.clone();
+	let spinner2 = spinner.clone();
+	let spinner3 = spinner.clone();
 
 	let form = multipart::Form::new()
 		.text("skin", "blueberry_v1_7_0")
@@ -14,10 +21,12 @@ fn main() {
 		.text("username", "Holly")
 		.file("replayFile", &args[1]).unwrap();
 
+    spinner.set_message("Uploading replay...");
 	let client = reqwest::blocking::Client::new();
 	let mut res = client.post("https://ordr-api.issou.best/renders")
 		.multipart(form)
 		.send().unwrap();
+	spinner.set_message("Replay uploaded, waiting for response");
 
 	// check if status code is 429
 	if res.status() == reqwest::StatusCode::TOO_MANY_REQUESTS {
@@ -35,6 +44,14 @@ fn main() {
 	res.read_to_string(&mut body).unwrap();
 
 	let r: holly::SentRender = serde_json::from_str(&body).unwrap();
+
+    // on 429 it doesn't send json so we check if response code isnt 201 and
+    // print error message from json
+    if res.status() != reqwest::StatusCode::CREATED {
+        println!("Error: {} ({})", r.message, r.errorCode);
+        return;
+    }
+    spinner.set_message("Uploaded successfully, waiting for render to start");
 	let render_id = r.renderID;
 
     let done_callback = move |payload: Payload, socket: Client| {
@@ -45,9 +62,10 @@ fn main() {
 
         let p: holly::RenderDone = serde_json::from_str(&data).unwrap();
         if p.renderID == render_id {
-            println!("Render finished!");
+            spinner1.set_message(p.videoUrl);
+            spinner1.finish();
             socket.disconnect();
-            return;
+            std::process::exit(0);
         }
     };
 
@@ -58,7 +76,7 @@ fn main() {
 		};
 		let p: holly::RenderProgress = serde_json::from_str(&data).unwrap();
 		if p.renderID == render_id {
-			println!("{}", p.progress);
+		    spinner2.set_message(p.progress);
 		}
 	};
 
@@ -70,9 +88,10 @@ fn main() {
 
         let p: holly::RenderFailed = serde_json::from_str(&data).unwrap();
         if p.renderID == render_id {
-            println!("Render failed. Error: {} ({})", p.errorMessage, p.errorCode);
+            spinner3.set_message(format!("Render failed. Error: {} ({})", p.errorMessage, p.errorCode));
+            spinner3.finish();
             socket.disconnect();
-            return;
+            std::process::exit(0);
         }
     };
 
