@@ -4,7 +4,7 @@ use indicatif::ProgressBar;
 use reqwest::blocking::multipart;
 use rust_socketio::{Client, ClientBuilder, Payload};
 use std::io::Read;
-use std::{env, thread::sleep, time};
+use std::{env, time};
 
 fn main() {
 	let args: Vec<String> = env::args().collect();
