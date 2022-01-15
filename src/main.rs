@@ -1,6 +1,6 @@
 mod holly;
 
-use std::{env, time::{Duration, Instant}, thread::sleep};
+use std::{env, time::{Duration, Instant}};
 use reqwest::blocking::multipart;
 use rust_socketio::{ClientBuilder, Payload, Client};
 use std::io::Read;
@@ -102,5 +102,5 @@ fn main() {
 		.connect()
 		.expect("Connection failed");
 
-	sleep(time::Duration::from_secs(1000));
+    loop {}
 }
