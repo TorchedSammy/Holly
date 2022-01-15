@@ -1,10 +1,10 @@
 mod holly;
 
-use std::{env, time, thread::sleep};
-use reqwest::blocking::multipart;
-use rust_socketio::{ClientBuilder, Payload, Client};
-use std::io::Read;
 use indicatif::ProgressBar;
+use reqwest::blocking::multipart;
+use rust_socketio::{Client, ClientBuilder, Payload};
+use std::io::Read;
+use std::{env, thread::sleep, time};
 
 fn main() {
 	let args: Vec<String> = env::args().collect();
@@ -19,20 +19,30 @@ fn main() {
 		.text("skin", "blueberry_v1_7_0")
 		.text("resolution", "1280x720")
 		.text("username", "Holly")
-		.file("replayFile", &args[1]).unwrap();
+		.file("replayFile", &args[1])
+		.unwrap();
 
 	spinner.set_message("Uploading replay...");
 	let client = reqwest::blocking::Client::new();
-	let mut res = client.post("https://ordr-api.issou.best/renders")
+	let mut res = client
+		.post("https://ordr-api.issou.best/renders")
 		.multipart(form)
-		.send().unwrap();
+		.send()
+		.unwrap();
 	spinner.set_message("Replay uploaded, waiting for response");
 
 	// check if status code is 429
 	if res.status() == reqwest::StatusCode::TOO_MANY_REQUESTS {
 		// get X-RateLimit-Reset header
 		let now = time::Instant::now();
-		let stamp = res.headers().get("X-RateLimit-Reset").unwrap().to_str().unwrap().parse::<u64>().unwrap();
+		let stamp = res
+			.headers()
+			.get("X-RateLimit-Reset")
+			.unwrap()
+			.to_str()
+			.unwrap()
+			.parse::<u64>()
+			.unwrap();
 		let duration = time::Duration::from_secs(stamp) - now.elapsed();
 
 		println!("{}", duration.as_secs());
@@ -88,7 +98,10 @@ fn main() {
 
 		let p: holly::RenderFailed = serde_json::from_str(&data).unwrap();
 		if p.renderID == render_id {
-			spinner3.set_message(format!("Render failed. Error: {} ({})", p.errorMessage, p.errorCode));
+			spinner3.set_message(format!(
+				"Render failed. Error: {} ({})",
+				p.errorMessage, p.errorCode
+			));
 			spinner3.finish();
 			socket.disconnect();
 			std::process::exit(0);
