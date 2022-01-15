@@ -15,6 +15,7 @@ fn main() {
 		.text("skin", "blueberry_v1_7_0")
 		.text("resolution", "1280x720")
 		.text("username", "Holly")
+		.text("showDanserLogo", "false")
 		.file("replayFile", &args[1])
 		.unwrap();
 
