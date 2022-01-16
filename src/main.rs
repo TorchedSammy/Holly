@@ -40,11 +40,8 @@ fn main() {
 			.unwrap()
 			.parse::<u64>()
 			.unwrap();
-		let duration = time::Duration::from_secs(stamp) - now.elapsed();
-
-		println!("{}", duration.as_secs());
+		spinner.finish_and_clear();
 		println!("Ratelimited, try again later...");
-		return;
 	}
 
 	let mut body = String::new();
