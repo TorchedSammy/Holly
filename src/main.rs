@@ -31,6 +31,7 @@ fn main() {
 	// check if status code is 429
 	if res.status() == reqwest::StatusCode::TOO_MANY_REQUESTS {
 		// get X-RateLimit-Reset header
+		/*
 		let now = time::Instant::now();
 		let stamp = res
 			.headers()
@@ -40,8 +41,10 @@ fn main() {
 			.unwrap()
 			.parse::<u64>()
 			.unwrap();
+		*/
 		spinner.finish_and_clear();
 		println!("Ratelimited, try again later...");
+		return;
 	}
 
 	let mut body = String::new();
